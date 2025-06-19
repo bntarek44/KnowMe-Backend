@@ -69,7 +69,7 @@ const googleCallbackSuccess = (req, res) => {
 
   // عرض بيانات المستخدم في الـ API
   
- res.redirect("http://localhost:3001/dashboard.html");
+ res.redirect("https://know-me-frontend-swart.vercel.app/dashboard.html");
 
 }
  
