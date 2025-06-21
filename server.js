@@ -15,17 +15,17 @@ app.use(cors({
 
 app.use(express.json());
 
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
+// if (process.env.NODE_ENV === 'production') {
+//   app.set('trust proxy', 1);
+// }
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    secure: true,
+    sameSite: "none"
   }
 }));
 
