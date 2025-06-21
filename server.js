@@ -14,15 +14,15 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.set('trust proxy', 1); // ✨ مهم جداً لتمرير الكوكيز في الإنتاج
+// app.set('trust proxy', 1); // ✨ مهم جداً لتمرير الكوكيز في الإنتاج
     // إعداد الجلسة و passport
 app.use(session({
   secret: process.env.Session_Secret,
   resave: false,
   saveUninitialized: false, // مهم جداً
   cookie: {
-    secure: true,
-    sameSite: 'none' // ✨ مهم لتخطي المشاكل في cross-origin
+    secure: false,
+    sameSite: 'lax' // ✨ مهم لتخطي المشاكل في cross-origin
   }
 }));
 
