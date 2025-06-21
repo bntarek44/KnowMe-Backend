@@ -19,13 +19,14 @@ app.use(express.json());
 //   app.set('trust proxy', 1);
 // }
 
+app.use(express.json());    // إعداد الجلسة و passport
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.Session_Secret,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: false, // مهم جداً
   cookie: {
-    secure: true,
-    sameSite: "none"
+    secure: false,
+    sameSite: 'lax' // ✨ مهم لتخطي المشاكل في cross-origin
   }
 }));
 
