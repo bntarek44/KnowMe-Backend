@@ -49,6 +49,12 @@ mongoose.connect(process.env.DB_URI)
     .catch(err => console.error('❌ MongoDB connection failed:', err));
 
 
+    app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).send('Internal Server Error');
+});
+
+
 
 
 // ✅ start server
