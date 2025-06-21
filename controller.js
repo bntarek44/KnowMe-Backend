@@ -61,17 +61,32 @@ const googleLogin = passport.authenticate("google", {
 
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
 const googleCallbackFail = passport.authenticate("google", { failureRedirect: "/login" });
+// const googleCallbackSuccess = (req, res) => {
+//   // هنا الـ req.user هي بيانات المستخدم اللي تم الحصول عليها من Passport
+//   if (!req.user) {
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+
+//   // عرض بيانات المستخدم في الـ API
+  
+//  res.redirect("https://know-me-frontend-swart.vercel.app/dashboard.html");
+
+// }
+
 const googleCallbackSuccess = (req, res) => {
-  // هنا الـ req.user هي بيانات المستخدم اللي تم الحصول عليها من Passport
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // عرض بيانات المستخدم في الـ API
-  
- res.redirect("https://know-me-frontend-swart.vercel.app/dashboard.html");
-
-}
+  res.send(`
+    <script>
+      // خزن إن المستخدم سجل دخول
+      localStorage.setItem('loggedIn', 'true');
+      // روح على الداشبورد
+      window.location.href = "http://localhost:3001/dashboard.html";
+    </script>
+  `);
+};
  
 
 
