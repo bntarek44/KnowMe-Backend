@@ -9,22 +9,26 @@ const session = require("express-session");
 
 // ✅ ترتيب الميدلوير مهم
 app.use(cors({
-  origin: 'https://know-me-frontend-git-master-bntarek44s-projects.vercel.app',
+  origin: 'https://know-me-frontend-swart.vercel.app',
   credentials: true,
 }));
 
 app.use(express.json());
-// app.set('trust proxy', 1); // ✨ مهم جداً لتمرير الكوكيز في الإنتاج
-    // إعداد الجلسة و passport
+
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(session({
-  secret: process.env.Session_Secret,
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, // مهم جداً
+  saveUninitialized: false,
   cookie: {
-    secure: false,
-    sameSite: 'lax' // ✨ مهم لتخطي المشاكل في cross-origin
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());

@@ -14,6 +14,7 @@ router.get('/user', (req, res) => {
   if (req.isAuthenticated()) {
     // لو المستخدم مسجل دخول
     res.json({ user: req.user });
+    console.log("🔍 req.user:", req.user);
   } else {
     // لو مش مسجل دخول
     res.json({ user: null });
