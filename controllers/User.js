@@ -83,7 +83,7 @@ const googleCallbackSuccess = (req, res) => {
       // خزن إن المستخدم سجل دخول
       localStorage.setItem('loggedIn', 'true');
       // روح على الداشبورد
-      window.location.href = "http://localhost:3001/dashboard.html";
+      window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
     </script>
   `);
 };
