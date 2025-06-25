@@ -1,7 +1,7 @@
 // استيراد الحزم المطلوبة
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("./models"); // استيراد الموديل الخاص بالمستخدم
+const User = require("../models/User"); // استيراد الموديل الخاص بالمستخدم
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -69,7 +69,7 @@ const googleCallbackFail = passport.authenticate("google", { failureRedirect: "/
 
 //   // عرض بيانات المستخدم في الـ API
   
-//  res.redirect("https://know-me-frontend-swart.vercel.app/dashboard.html");
+//  res.redirect("http://localhost:3001/dashboard.html");
 
 // }
 
@@ -83,11 +83,18 @@ const googleCallbackSuccess = (req, res) => {
       // خزن إن المستخدم سجل دخول
       localStorage.setItem('loggedIn', 'true');
       // روح على الداشبورد
-      window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
+      window.location.href = "http://localhost:3001/dashboard.html";
     </script>
   `);
 };
- 
+
+
+
+
+
+
+
+
 
 
 
@@ -97,5 +104,5 @@ const googleCallbackSuccess = (req, res) => {
 module.exports = {
   googleLogin,
   googleCallbackFail,
-  googleCallbackSuccess
+  googleCallbackSuccess,
 };
