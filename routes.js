@@ -14,7 +14,13 @@ router.get("/google/callback",UserController.googleCallbackFail,
 router.get('/user', (req, res) => {
   if (req.isAuthenticated()) {
     // لو المستخدم مسجل دخول
-    res.json({ user: req.user });
+  res.json({
+  user: {
+    name: req.user.name,
+    email: req.user.email,
+    photo: req.user.imageUrl,
+  }
+});
   } else {
     // لو مش مسجل دخول
     res.json({ user: null });

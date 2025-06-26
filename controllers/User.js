@@ -77,15 +77,25 @@ const googleCallbackSuccess = (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
+  if(req.user.hasAnsweredQuiz) {
   res.send(`
     <script>
       // خزن إن المستخدم سجل دخول
       localStorage.setItem('loggedIn', 'true');
       // روح على الداشبورد
-      window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
+      window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html";
     </script>
-  `);
+  `);  }else {
+    res.send(`
+      <script>
+        // خزن إن المستخدم سجل دخول
+        localStorage.setItem('loggedIn', 'true');
+        // روح على الداشبورد
+        window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
+      </script>
+    `);
+  }
+
 };
 
 

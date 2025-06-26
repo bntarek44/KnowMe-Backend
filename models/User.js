@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  hasAnsweredQuiz: {
+  type: Boolean,
+  default: false,
+},
   imageUrl: {
     type: String,  // لو حابب تخزن صورة المستخدم
     default: "",   // مثلاً لو جوجل مابعتش صورة
