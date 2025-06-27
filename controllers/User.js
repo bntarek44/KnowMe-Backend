@@ -58,20 +58,20 @@ passport.deserializeUser(async (id, done) => {
 const googleLogin = passport.authenticate("google", {
   scope: ["profile", "email"], // الصلاحيات التي نطلبها من المستخدم
 });
+// دالة تسجيل الخروج
+const logoutUser =function(req, res) {
+  req.logout(() => {
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.json({ message: 'Logged out successfully' });
+    });
+  });
+}
+
+
 
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
-const googleCallbackFail = passport.authenticate("google", { failureRedirect: "/login" });
-// const googleCallbackSuccess = (req, res) => {
-//   // هنا الـ req.user هي بيانات المستخدم اللي تم الحصول عليها من Passport
-//   if (!req.user) {
-//     return res.status(401).json({ message: "Unauthorized" });
-//   }
-
-//   // عرض بيانات المستخدم في الـ API
-  
-//  res.redirect("http://localhost:3001/dashboard.html");
-
-// }
+const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/login.html" });
 
 const googleCallbackSuccess = (req, res) => {
   if (!req.user) {
@@ -115,4 +115,5 @@ module.exports = {
   googleLogin,
   googleCallbackFail,
   googleCallbackSuccess,
+  logoutUser
 };

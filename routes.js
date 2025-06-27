@@ -7,10 +7,11 @@ const {ensureAuth} = require("./middleWare");  // استيراد الميدلو�
 
 
 router.get("/google",UserController.googleLogin) ;
+router.get("/logout",UserController.logoutUser) ;
 router.get("/google/callback",UserController.googleCallbackFail,
   UserController.googleCallbackSuccess
 );
-// بنتأكد من وجود اليوزر وبعدين نبغت اسمه عشان رسالة الترحيب
+//  بنتأكد من وجود اليوزر وبعدين نبغت بياناته عشان رسالة الترحيب
 router.get('/user', (req, res) => {
   if (req.isAuthenticated()) {
     // لو المستخدم مسجل دخول
@@ -19,6 +20,7 @@ router.get('/user', (req, res) => {
     name: req.user.name,
     email: req.user.email,
     photo: req.user.imageUrl,
+    createdAt: req.user.createdAt,
   }
 });
   } else {

@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   imageUrl: {
     type: String,  // لو حابب تخزن صورة المستخدم
     default: "",   // مثلاً لو جوجل مابعتش صورة
-  }
+  },
 }, {
   timestamps: true // سيقوم بإضافة createdAt و updatedAt تلقائيًا
 });
