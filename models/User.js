@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
   type: Boolean,
   default: false,
 },
+deletionRequested: {
+  type: Boolean,
+  default: false
+},
+deletionDate: {
+  type: Date,
+  default: null
+},
   imageUrl: {
     type: String,  // لو حابب تخزن صورة المستخدم
     default: "",   // مثلاً لو جوجل مابعتش صورة

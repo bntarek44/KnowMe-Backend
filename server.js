@@ -6,6 +6,8 @@ const cors = require("cors");
 const UserRouter = require("./routes");
 const passport = require("passport");
 const session = require("express-session");
+const cron = require('node-cron');
+const { deleteExpiredAccounts } = require('./controllers/DeleteAccount');
 
 // ✅ ترتيب الميدلوير مهم
 app.use(cors({
@@ -36,6 +38,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+// دالة دورية لحذف الحسابات المؤجلة
+cron.schedule('0 0 * * *', async () => {
+  console.log('🕛 Cron Job Running: Deleting expired accounts...');
+  await deleteExpiredAccounts();
+  console.log('✅ Cron Job Finished: Expired accounts deleted.');
+});
 
 // ✅ use routes
 app.use('/auth', UserRouter);  // هنغير في routes كمان تبع ده

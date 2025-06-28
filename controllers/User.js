@@ -71,7 +71,7 @@ const logoutUser =function(req, res) {
 
 
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
-const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/login.html" });
+const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/index.html" });
 
 const googleCallbackSuccess = (req, res) => {
   if (!req.user) {

@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const DataController = require("./controllers/Data"); // استيراد الكونترولر الخاص بالمستخدم
 const UserController = require("./controllers/User"); // استيراد الكونترولر الخاص بالمستخدم
+const DeleteController = require("./controllers/DeleteAccount"); // استيراد الكونترولر الخاص بالمستخدم
+
 const {ensureAuth} = require("./middleWare");  // استيراد الميدلوير الخاص بالمصادقة
 
 
@@ -30,6 +32,8 @@ router.get('/user', (req, res) => {
 });
   // بنتأكد من وجود اليوزر قبل م نحفظ البيانات 
 router.post("/data" ,ensureAuth, DataController.dataStorage);
+// طلب حذف الحساب
+router.delete('/request-delete', ensureAuth,DeleteController.requestDeletion)
 
 
 
