@@ -28,7 +28,14 @@ passport.use(
             imageUrl: profile.photos[0].value, // صورة المستخدم
           });
           await user.save(); // حفظ المستخدم في قاعدة البيانات
-        }
+        }else {
+      // ✅ هنا نعمل التشييك اللي انت عايزه
+      if (user.deletionRequested) {
+        user.deletionRequested = false;
+        await user.save();
+        console.log('✅ تم استعادة الحساب وإلغاء طلب الحذف');
+      }
+    }
 
         // عندما نجد المستخدم أو نقوم بإنشائه، نمرر بيانات المستخدم إلى done
         return done(null, user); // هذا يعني أن المصادقة تمت بنجاح
