@@ -33,7 +33,8 @@ router.get('/user', (req, res) => {
   // بنتأكد من وجود اليوزر قبل م نحفظ البيانات 
 router.post("/data" ,ensureAuth, DataController.dataStorage);
 // طلب حذف الحساب
-router.delete('/request-delete', ensureAuth,DeleteController.requestDeletion)
+router.delete('/request-delete', ensureAuth,DeleteController.requestDeletion);
+router.get("/data",ensureAuth,DataController.getData);
 
 
 
