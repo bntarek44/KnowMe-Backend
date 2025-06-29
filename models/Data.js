@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
 const dataSchema = new mongoose.Schema({
-  season: {
-    type: String,
-    required: true,
-    enum: ["summer", "winter"],
+  answers: {
+    type: Map,
+    of: String,
+    required: true
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // ربط بالإيميل أو ID الراجع من جوجل
+    ref: "User",
     required: true
   },
   createdAt: {
