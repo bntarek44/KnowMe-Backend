@@ -23,6 +23,7 @@ router.get('/user', (req, res) => {
     email: req.user.email,
     photo: req.user.imageUrl,
     createdAt: req.user.createdAt,
+    linkToken: req.user.linkToken
   }
 });
   } else {

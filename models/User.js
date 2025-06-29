@@ -27,10 +27,11 @@ deletionDate: {
   type: Date,
   default: null
 },
-  imageUrl: {
-    type: String,  // لو حابب تخزن صورة المستخدم
-    default: "",   // مثلاً لو جوجل مابعتش صورة
+imageUrl: {
+  type: String,  // لو حابب تخزن صورة المستخدم
+  default: "",   // مثلاً لو جوجل مابعتش صورة
   },
+linkToken: String,
 }, {
   timestamps: true // سيقوم بإضافة createdAt و updatedAt تلقائيًا
 });

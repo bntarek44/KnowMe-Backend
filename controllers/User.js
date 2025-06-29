@@ -18,24 +18,29 @@ passport.use(
         const email = profile.emails[0].value;
         // البحث عن المستخدم في قاعدة البيانات باستخدام البريد الإلكتروني
         let user = await User.findOne({ email});
-        
-        if (!user) {
-          // إذا كان المستخدم غير موجود في قاعدة البيانات، نقوم بإنشائه
-          user = new User({
-            googleId: profile.id,
-            email: profile.emails[0].value, // استخدام البريد الإلكتروني من Google
-            name: profile.displayName, // الاسم من Google
-            imageUrl: profile.photos[0].value, // صورة المستخدم
-          });
-          await user.save(); // حفظ المستخدم في قاعدة البيانات
-        }else {
-      // ✅ هنا نعمل التشييك اللي انت عايزه
-      if (user.deletionRequested) {
-        user.deletionRequested = false;
-        await user.save();
-        console.log('✅ تم استعادة الحساب وإلغاء طلب الحذف');
-      }
-    }
+          if (user) {
+            if (!user.linkToken) {
+              user.linkToken = generateToken();
+              await user.save();
+            }
+              // ✅ هنا نعمل التشييك اللي انت عايزه
+            if (user.deletionRequested) {
+            user.deletionRequested = false;
+            await user.save();
+            console.log('✅ تم استعادة الحساب وإلغاء طلب الحذف');
+            }
+          } else {
+            // لو ما فيش مستخدم، نعمل واحد جديد
+            user = new User({
+              googleId: profile.id,
+              email,
+              name: profile.displayName,
+              imageUrl: profile.photos[0].value,
+              linkToken: generateToken(), // هنا لازم تولد التوكن
+            });
+            await user.save();
+          }
+
 
         // عندما نجد المستخدم أو نقوم بإنشائه، نمرر بيانات المستخدم إلى done
         return done(null, user); // هذا يعني أن المصادقة تمت بنجاح
@@ -45,6 +50,9 @@ passport.use(
     }
   )
 );
+function generateToken() {
+  return Math.random().toString(36).substring(2, 14);
+}
 
 // تخزين المستخدم في الجلسة (session)
 passport.serializeUser((user, done) => {
@@ -78,7 +86,7 @@ const logoutUser =function(req, res) {
 
 
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
-const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/index.html" });
+const googleCallbackFail = passport.authenticate("google", { failureRedirect: "http://localhost:3001/index.html" });
 
 const googleCallbackSuccess = (req, res) => {
   if (!req.user) {
