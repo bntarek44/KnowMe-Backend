@@ -3,7 +3,7 @@ const router = express.Router();
 const DataController = require("./controllers/Data"); // استيراد الكونترولر الخاص بالمستخدم
 const UserController = require("./controllers/User"); // استيراد الكونترولر الخاص بالمستخدم
 const DeleteController = require("./controllers/DeleteAccount"); // استيراد الكونترولر الخاص بالمستخدم
-
+const QuizController = require("./controllers/quiz"); // استيراد الكونترولر الخاص بالاختبارات
 const {ensureAuth} = require("./middleWare");  // استيراد الميدلوير الخاص بالمصادقة
 
 
@@ -35,7 +35,12 @@ router.get('/user', (req, res) => {
 router.post("/data" ,ensureAuth, DataController.dataStorage);
 // طلب حذف الحساب
 router.delete('/request-delete', ensureAuth,DeleteController.requestDeletion);
+// ارسال البيانات بتاع الاجابات عشان نملاها تلقائي لدالة التعديل
 router.get("/data",ensureAuth,DataController.getData);
+// لارسال اسم مالك التحدي
+router.get("/quiz/owner",QuizController.ownerName);
+// لتخزين الاجابات
+router.post("/quiz/answer",QuizController.answerStorage);
 
 
 
