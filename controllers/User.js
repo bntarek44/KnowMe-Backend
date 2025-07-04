@@ -2,6 +2,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/User"); // استيراد الموديل الخاص بالمستخدم
+const Data = require("../models/Data"); // استيراد الموديل الخاص بالمستخدم
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -9,47 +10,49 @@ dotenv.config();
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID, // هذا هو الـ Client ID الذي تحصل عليه من Google API
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET, // هذا هو الـ Client Secret
-      callbackURL: process.env.GOOGLE_CALLBACK_URL, // عنوان ال URL الذي يعيد توجيه المستخدم بعد المصادقة
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
-    async (accessToken, refreshToken, profile, done) => {
+  async (req, accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails[0].value;
-        // البحث عن المستخدم في قاعدة البيانات باستخدام البريد الإلكتروني
-        let user = await User.findOne({ email});
-          if (user) {
-            if (!user.linkToken) {
-              user.linkToken = generateToken();
-              await user.save();
-            }
-              // ✅ هنا نعمل التشييك اللي انت عايزه
-            if (user.deletionRequested) {
+// هنا 👇 حط السطر ده
+       
+// ابحث عن المستخدم
+        let user = await User.findOne({ email });
+        if (user) {
+          if (!user.linkToken) {
+            user.linkToken = generateToken();
+            await user.save();
+          }
+          if (user.deletionRequested) {
             user.deletionRequested = false;
             await user.save();
             console.log('✅ تم استعادة الحساب وإلغاء طلب الحذف');
-            }
-          } else {
-            // لو ما فيش مستخدم، نعمل واحد جديد
-            user = new User({
-              googleId: profile.id,
-              email,
-              name: profile.displayName,
-              imageUrl: profile.photos[0].value,
-              linkToken: generateToken(), // هنا لازم تولد التوكن
-            });
-            await user.save();
           }
+        } else {
+          // مستخدم جديد
+          user = new User({
+            googleId: profile.id,
+            email,
+            name: profile.displayName,
+            imageUrl: profile.photos[0].value,
+            linkToken: generateToken(),
+          });
+          await user.save();
+        }
 
 
-        // عندما نجد المستخدم أو نقوم بإنشائه، نمرر بيانات المستخدم إلى done
-        return done(null, user); // هذا يعني أن المصادقة تمت بنجاح
+        // المصادقة ناجحة
+        return done(null, user);
       } catch (err) {
-        return done(err, null); // إذا كان هناك خطأ أثناء عملية البحث أو الإنشاء
+        return done(err, null);
       }
     }
   )
 );
+
 function generateToken() {
   return Math.random().toString(36).substring(2, 14);
 }
@@ -70,9 +73,18 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Controller الخاص بتسجيل الدخول عبر Google
-const googleLogin = passport.authenticate("google", {
-  scope: ["profile", "email"], // الصلاحيات التي نطلبها من المستخدم
-});
+const googleLogin = (req, res, next) => {
+  const options = {
+    scope: ['profile', 'email']
+  };
+  if (req.session.quizToken) {
+    options.state = req.session.quizToken;
+  }
+  passport.authenticate('google', options)(req, res, next);
+};
+
+
+
 // دالة تسجيل الخروج
 const logoutUser =function(req, res) {
   req.logout(() => {
@@ -86,32 +98,56 @@ const logoutUser =function(req, res) {
 
 
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
-const googleCallbackFail = passport.authenticate("google", { failureRedirect: "http://localhost:3001/index.html" });
+const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/index.html" });
 
-const googleCallbackSuccess = (req, res) => {
+const googleCallbackSuccess = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  if(req.user.hasAnsweredQuiz) {
-  res.send(`
-    <script>
-      // خزن إن المستخدم سجل دخول
-      localStorage.setItem('loggedIn', 'true');
-      // روح على الداشبورد
-      window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html";
-    </script>
-  `);  }else {
+  
+    // 👇 لو جوجل رجعت state رجعه تاني للسيشن
+  if (req.query.state) {
+    req.session.quizToken = req.query.state;
+  }
+
+  // هل هو جاي من رابط فيه توكن تحدي؟ يعني ده صديق بيحل مش صاحب التحدي
+  if (req.session.quizToken) {
+     const quizToken = req.session.quizToken;
+  delete req.session.quizToken;
+    // خزن إنه سجل دخول
     res.send(`
       <script>
-        // خزن إن المستخدم سجل دخول
+        localStorage.setItem('loggedIn', 'true');
+        // روح على صفحة الكويز
+        window.location.href = "https://know-me-frontend-swart.vercel.app/quiz.html?token=${quizToken}";
+      </script>
+    `);
+    return;
+  }
+  
+const ownerISAnswer = await Data.findOne({ user: req.user._id });
+
+  // لو هو صاحب التحدي
+  if (ownerISAnswer) {
+    res.send(`
+      <script>
+        localStorage.setItem('loggedIn', 'true');
+        // روح على البروفايل
+        window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html";
+      </script>
+    `);
+  } else {
+    res.send(`
+      <script>
         localStorage.setItem('loggedIn', 'true');
         // روح على الداشبورد
         window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
       </script>
     `);
   }
-
 };
+
+
 
 
 

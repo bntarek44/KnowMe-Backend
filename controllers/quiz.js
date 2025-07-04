@@ -16,7 +16,7 @@ const ownerName = async function(req, res){
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ name: user.name });
+    res.json({ name: user.name , id: user._id });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
