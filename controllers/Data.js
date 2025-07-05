@@ -17,11 +17,9 @@ const dataStorage = async function (req, res) {
       existing.answers = answers;
       await existing.save();
     } else {
-      const newAnswer = new Data({ answers, user: req.user._id });
+      const newAnswer = new Data({ answers, user: req.user._id,userName : req.user.name, userEmail : req.user.email});
       await newAnswer.save();
     }
-
-    await User.updateOne({ _id: req.user._id }, { ownerHasAnswered: true });
 
     res.status(201).json({ message: "Answers saved successfully" });
   } catch (err) {

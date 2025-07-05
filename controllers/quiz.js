@@ -44,7 +44,9 @@ const answerStorage = async function(req, res){
     // احفظ الإجابة
     const newAnswer = new Answer({
       linkToken: token,
-      answers
+      answers,
+      ownerEmail: owner.email,  // ايميل صاحب الكويز
+      ownerName: owner.name       // اسم صاحب الكويز
     });
 
     await newAnswer.save();

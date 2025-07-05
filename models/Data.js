@@ -11,6 +11,13 @@ const dataSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  userName: {
+    type: String,
+  },
+  userEmail: {
+    type: String ,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,
