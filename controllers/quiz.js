@@ -4,7 +4,7 @@ const User = require('../models/User');      // الموديل بتاع اليو
 
 // لارسال اسم اليوزر او صاحب الفورم حسب التوكن 
 const ownerName = async function(req, res){
-  const token = req.query.token;
+  const token = req.query.quizToken;
   if (!token) {
     return res.status(400).json({ error: 'Token is required' });
   }

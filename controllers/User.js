@@ -13,7 +13,7 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    },
+        },
   async (req, accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails[0].value;
@@ -96,56 +96,72 @@ const logoutUser =function(req, res) {
 }
 
 
-
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
 const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/index.html" });
+
+
 
 const googleCallbackSuccess = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  
-    // 👇 لو جوجل رجعت state رجعه تاني للسيشن
-  if (req.query.state) {
-    req.session.quizToken = req.query.state;
+
+  // ✅ لو جوجل رجعت state (من رابط فيه توكن)
+  const state = req.query.state;
+  if (state) {
+    console.log('✅ Google callback state:', state);
+
+    if (state.startsWith('quiz-')) {
+      // صديق بيجاوب التحدي
+      return res.send(`
+        <script>
+          localStorage.setItem('loggedIn', 'true');
+          window.location.href = "https://know-me-frontend-swart.vercel.app/quiz.html?quizToken=${state}";
+        </script>
+      `);
+    }
+
+    if (state.startsWith('profile-')) {
+      // صاحب التحدي جاي من رابط الملف
+      return res.send(`
+        <script>
+          localStorage.setItem('loggedIn', 'true');
+          window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html?profileToken=${state}";
+        </script>
+      `);
+    }
+
+    // أي state غير مفهوم ➜ تجاهله وروح للداشبورد
+    console.log('⚠️ Unknown state prefix');
   }
 
-  // هل هو جاي من رابط فيه توكن تحدي؟ يعني ده صديق بيحل مش صاحب التحدي
-  if (req.session.quizToken) {
-     const quizToken = req.session.quizToken;
-  delete req.session.quizToken;
-    // خزن إنه سجل دخول
-    res.send(`
-      <script>
-        localStorage.setItem('loggedIn', 'true');
-        // روح على صفحة الكويز
-        window.location.href = "https://know-me-frontend-swart.vercel.app/quiz.html?token=${quizToken}";
-      </script>
-    `);
-    return;
-  }
-  
-const ownerISAnswer = await Data.findOne({ user: req.user._id });
+  // ✅ لو مفيش state ➜ سجل دخول عادي
+  try {
+    const ownerISAnswer = await Data.findOne({ user: req.user._id });
 
-  // لو هو صاحب التحدي
-  if (ownerISAnswer) {
-    res.send(`
-      <script>
-        localStorage.setItem('loggedIn', 'true');
-        // روح على البروفايل
-        window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html";
-      </script>
-    `);
-  } else {
-    res.send(`
-      <script>
-        localStorage.setItem('loggedIn', 'true');
-        // روح على الداشبورد
-        window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
-      </script>
-    `);
+    if (ownerISAnswer) {
+      // هو صاحب التحدي
+      return res.send(`
+        <script>
+          localStorage.setItem('loggedIn', 'true');
+          window.location.href = "https://know-me-frontend-swart.vercel.app/profile.html?profileToken=profile-${req.user.linkToken}";
+        </script>
+      `);
+    } else {
+      // حساب عادي جديد ➜ الداشبورد
+      return res.send(`
+        <script>
+          localStorage.setItem('loggedIn', 'true');
+          window.location.href = "https://know-me-frontend-swart.vercel.app/dashboard.html";
+        </script>
+      `);
+    }
+  } catch (err) {
+    console.error('❌ Error in googleCallbackSuccess:', err);
+    return res.status(500).send('Server Error');
   }
 };
+
 
 
 
