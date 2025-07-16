@@ -1,5 +1,6 @@
 const Answer = require('../models/answer');  // استورد الموديل اللي فوق
-const User = require('../models/User');      // الموديل بتاع اليوزر
+const User = require('../models/User');     // الموديل بتاع اليوزر
+const Data = require('../models/Data');
 
 
 // لارسال اسم اليوزر او صاحب الفورم حسب التوكن 
@@ -27,26 +28,29 @@ const ownerName = async function(req, res){
 
 // لاستقبال الاجابات من صديق اليوزر وحفظها ف الداتا بيز
 
-const answerStorage = async function(req, res){
+const answerStorage = async function(req, res) {
   try {
-    const { token, answers } = req.body;
+    const { token, answers, guestName, guestEmail } = req.body;
 
-    if (!token || !answers) {
-      return res.status(400).json({ error: 'Missing token or answers' });
+    // ✅ تأكد من البيانات المطلوبة
+    if (!token || !answers || !guestName || !guestEmail) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // تأكد إن التوكن ده يخص يوزر موجود
+    // ✅ تأكد إن التوكن يخص صاحب التحدي
     const owner = await User.findOne({ linkToken: token });
     if (!owner) {
       return res.status(404).json({ error: 'Invalid token / User not found' });
     }
 
-    // احفظ الإجابة
+    // ✅ احفظ الإجابة
     const newAnswer = new Answer({
       linkToken: token,
       answers,
-      ownerEmail: owner.email,  // ايميل صاحب الكويز
-      ownerName: owner.name       // اسم صاحب الكويز
+      ownerEmail: owner.email,
+      ownerName: owner.name,
+      guestName,
+      guestEmail
     });
 
     await newAnswer.save();
@@ -62,6 +66,71 @@ const answerStorage = async function(req, res){
 
 
 
+const compareAnswersAndReturnResult = async function(req, res) {
+  try {
+    const { token, guestEmail } = req.body;
+
+
+    if (!token || !guestEmail) {
+      return res.status(400).json({ error: "Missing token or guest email" });
+    }
+    const guestAnswer = await Answer.findOne({ linkToken: token, guestEmail });
+
+    if (!guestAnswer) {
+      return res.status(404).json({ error: "Guest answer not found" });
+    }
+
+    const owner = await User.findOne({ linkToken: token });
+    if (!owner) {
+      return res.status(404).json({ error: "Owner not found" });
+    }
+    const ownerData = await Data.findOne({ user: owner._id });
+    if (!ownerData || !ownerData.answers) {
+      return res.status(404).json({ error: "Owner answers not found" });
+    }
+
+    const ownerAnswers = Object.fromEntries(ownerData.answers);
+    const guestAnswers = guestAnswer.answers;
+
+    let totalQuestions = 0;
+    let correctCount = 0;
+
+    for (const question in ownerAnswers) {
+      totalQuestions++;
+      const ownerAnswer = ownerAnswers[question]?.trim().toLowerCase();
+      const guestAnswer = guestAnswers[question]?.trim().toLowerCase();
+      if (guestAnswer && ownerAnswer && guestAnswer === ownerAnswer) {
+        correctCount++;
+      }
+    }
+
+
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+
+    // ✅ احفظ النتيجة في الداتا بيز
+    await Answer.findByIdAndUpdate(guestAnswer._id, {
+      resultPercentage: percentage,
+      correctAnswersCount: correctCount,
+      totalQuestions
+    });
+
+    const resultData = {
+      guestName: guestAnswer.guestName,
+      guestEmail: guestAnswer.guestEmail,
+      ownerName: guestAnswer.ownerName,
+      ownerEmail: guestAnswer.ownerEmail,
+      percentage,
+      correctCount,
+      totalQuestions
+    };
+
+    res.json({ success: true, result: resultData });
+
+  } catch (err) {
+    console.error("Error comparing answers:", err);
+    res.status(500).json({ error: "Server error while comparing answers" });
+  }
+};
 
 
 
@@ -71,4 +140,5 @@ const answerStorage = async function(req, res){
 
 
 
-module.exports = { ownerName,answerStorage };
+
+module.exports = { ownerName,answerStorage ,compareAnswersAndReturnResult };

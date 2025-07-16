@@ -14,7 +14,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
         },
-  async (req, accessToken, refreshToken, profile, done) => {
+async (req, accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails[0].value;
 // هنا 👇 حط السطر ده
@@ -96,10 +96,9 @@ const logoutUser =function(req, res) {
 }
 
 
+
 // Callback بعد أن يوافق المستخدم على تسجيل الدخول عبر Google
 const googleCallbackFail = passport.authenticate("google", { failureRedirect: "https://know-me-frontend-swart.vercel.app/index.html" });
-
-
 
 const googleCallbackSuccess = async (req, res) => {
   if (!req.user) {

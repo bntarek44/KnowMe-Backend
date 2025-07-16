@@ -24,8 +24,6 @@ router.get("/google/callback",UserController.googleCallbackFail,
   UserController.googleCallbackSuccess
 );
 //  بنتأكد من وجود اليوزر وبعدين نبغت بياناته عشان رسالة الترحيب
-
-
 router.get('/user', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({
@@ -42,8 +40,6 @@ router.get('/user', (req, res) => {
     res.json({ user: null });
   }
 });
-
-
 // بنبعت بيانات اليوزر بناء علي التوكن
 router.get('/user-by-token', async (req, res) => {
   const token = req.query.profileToken; // ✅ هنا التعديل
@@ -80,6 +76,8 @@ router.get("/data",ensureAuth,DataController.getData);
 router.get("/quiz/owner",QuizController.ownerName);
 // لتخزين الاجابات
 router.post("/quiz/answer",QuizController.answerStorage);
+// دالة لمقارنة الاجابات وحساب النتيجة
+router.post("/quiz/result",QuizController.compareAnswersAndReturnResult);
 
 
 
