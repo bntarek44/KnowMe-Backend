@@ -42,6 +42,16 @@ const answerStorage = async function(req, res) {
     if (!owner) {
       return res.status(404).json({ error: 'Invalid token / User not found' });
     }
+    // نتأكد انه محلش الاختبار قبل كدة
+    const existingAnswer = await Answer.findOne({
+    guestEmail,
+    linkToken: token  
+    });
+
+    if (existingAnswer) {
+      return res.status(400).json({ message: 'You already submitted this quiz.' });
+    }
+
 
     // ✅ احفظ الإجابة
     const newAnswer = new Answer({
@@ -61,6 +71,9 @@ const answerStorage = async function(req, res) {
     res.status(500).json({ error: 'Server error while saving answer' });
   }
 };
+
+
+
 
 
 
@@ -141,4 +154,4 @@ const compareAnswersAndReturnResult = async function(req, res) {
 
 
 
-module.exports = { ownerName,answerStorage ,compareAnswersAndReturnResult };
+module.exports = { ownerName,answerStorage , compareAnswersAndReturnResult };

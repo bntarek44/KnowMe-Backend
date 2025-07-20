@@ -6,6 +6,7 @@ const cors = require("cors");
 const UserRouter = require("./routes");
 const passport = require("passport");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const cron = require('node-cron');
 const { deleteExpiredAccounts } = require('./controllers/DeleteAccount');
 
@@ -18,7 +19,7 @@ app.use(cors({
 app.use(express.json());
 
 
-
+// لو في production (زي Vercel/Railway) لازم نثق في البروكسي عشان secure cookies تشتغل
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
@@ -27,11 +28,32 @@ app.use(session({
   secret: process.env.Session_Secret,
   resave: false,
   saveUninitialized: false,
+  rolling: true, // ✅ مهم لتجديد السيشن تلقائيًا مع كل request
+  store: MongoStore.create({
+    mongoUrl: process.env.DB_URI,
+    collectionName: 'sessions',
+  }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 1000 * 60 * 60, // ✅ جلسة لمدة ساعة (بالمللي ثانية)
+    secure: process.env.NODE_ENV === 'production', // ✅ https only in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   }
 }));
+
+
+// if (process.env.NODE_ENV === 'production') {
+//   app.set('trust proxy', 1);
+// }
+
+// app.use(session({
+//   secret: process.env.Session_Secret,
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     secure: process.env.NODE_ENV === 'production',
+//     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+//   }
+// }));
 
 
 
