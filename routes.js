@@ -5,6 +5,7 @@ const UserController = require("./controllers/User"); // استيراد الكو
 const User = require("./models/User");
 const DeleteController = require("./controllers/DeleteAccount"); // استيراد الكونترولر الخاص بالمستخدم
 const QuizController = require("./controllers/quiz"); // استيراد الكونترولر الخاص بالاختبارات
+const Static_Controller = require("./controllers/statics")
 const {ensureAuth} = require("./middleWare");  // استيراد الميدلوير الخاص بالمصادقة
 
 
@@ -78,7 +79,8 @@ router.get("/quiz/owner",QuizController.ownerName);
 router.post("/quiz/answer",QuizController.answerStorage);
 // دالة لمقارنة الاجابات وحساب النتيجة
 router.post("/quiz/result",QuizController.compareAnswersAndReturnResult);
-
+// لعمل الاحصائيات
+router.get('/statics/friends-ranking', Static_Controller.getFriendsRanking);
 
 
 
