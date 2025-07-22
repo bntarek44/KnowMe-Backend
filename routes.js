@@ -79,9 +79,10 @@ router.get("/quiz/owner",QuizController.ownerName);
 router.post("/quiz/answer",QuizController.answerStorage);
 // دالة لمقارنة الاجابات وحساب النتيجة
 router.post("/quiz/result",QuizController.compareAnswersAndReturnResult);
-// لعمل الاحصائيات
+// لعمل احصائيات الاصدقاء الل جاوبوا عني
 router.get('/statics/friends-ranking', Static_Controller.getFriendsRanking);
-
+// احصائيات الكويزات الل جاوبتها
+router.get('/statics/quizes-ranking', Static_Controller.getQuizesRanking);
 
 
 
